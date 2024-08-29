@@ -1,13 +1,14 @@
 # Inspired by https://simonwillison.net/2020/Oct/9/git-scraping/
 
-name: Fetches Chromium netlog events header
+name: Fetch Chromium netlog events header
 
 # Controls when the workflow will run
 on:
-#  push:
+  push:
   workflow_dispatch:
-#  schedule:
-#    - cron:  '0 5 * * *'
+  schedule:
+    - cron:  '0 5 * * *'
+
 
 jobs:
   schedule:
