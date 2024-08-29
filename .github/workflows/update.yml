@@ -23,7 +23,7 @@ jobs:
         
       - name: Fetch Chromium source files
         run: |-
-          mkdir -p source
+          mkdir -p source/main/net/log
           wget https://chromium.googlesource.com/chromium/src/+/main/net/log/net_log_event_type_list.h?format=TEXT -O source/main/net/log/net_log_event_type_list.h
          
       - name: Commit and push if it changed
