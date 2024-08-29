@@ -24,7 +24,7 @@ jobs:
       - name: Fetch Chromium source files
         run: |-
           mkdir -p source/main/net/log
-          curl "https://chromium.googlesource.com/chromium/src/+/main/net/log/net_log_event_type_list.h?format=TEXT" | base64 -D > source/main/net/log/net_log_event_type_list.h
+          curl "https://chromium.googlesource.com/chromium/src/+/main/net/log/net_log_event_type_list.h?format=TEXT" | base64 -d > source/main/net/log/net_log_event_type_list.h
 
       - name: Commit and push if it changed
         run: |-
