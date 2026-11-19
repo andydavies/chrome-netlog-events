@@ -741,11 +741,13 @@ EVENT_TYPE(SSL_SERVER_HANDSHAKE)
 EVENT_TYPE(SSL_CLIENT_CERT_REQUESTED)
 
 // The SSL stack blocked on a private key operation. The following parameters
-// are attached to the event.
+// are attached to the BEGIN event:
 //   {
 //     "algorithm": <TLS signature algorithm used>,
 //     "provider": <Human-readable name of the crypto provider>,
 //   }
+// On failure, the END event contains "net_error" and, if the provider reported
+// success with a 0-byte signature, "empty_signature": true.
 EVENT_TYPE(SSL_PRIVATE_KEY_OP)
 
 // A client certificate (or none) was provided to the SSL library to be sent
@@ -753,6 +755,10 @@ EVENT_TYPE(SSL_PRIVATE_KEY_OP)
 // The following parameters are attached to the event:
 //   {
 //     "cert_count": <Number of certificates>,
+//     "provider": <Optional; crypto provider name when key had no supported
+//                  signature algorithms>,
+//     "empty_algorithm_preferences": <Optional boolean; true when the private
+//                                     key reported no supported algorithms>,
 //   }
 //   A cert_count of 0 means no client certificate was provided.
 //   A cert_count of -1 means a client certificate was provided but we don't
@@ -3833,6 +3839,46 @@ EVENT_TYPE(AUTH_LIBRARY_INIT_SEC_CTX)
 //               because the underlying channel was not TLS.)>
 //  }
 EVENT_TYPE(AUTH_CHANNEL_BINDINGS)
+
+// Logged when a Negotiate authentication token fails target service principal
+// host validation against the challenged origin and `HttpAuthPreferences`.
+//  {
+//     "requested_host": <Host of the origin that issued the challenge>,
+//     "principal_host": <Canonical host extracted from the target principal,
+//                        omitted if the principal could not be queried or
+//                        parsed>,
+//     "reason": <Specific validation failure reason string>
+//  }
+EVENT_TYPE(AUTH_TARGET_PRINCIPAL_REJECTED)
+
+// Logged when the first Negotiate authentication token targets a service
+// principal host that `AuthServerAllowlist` permits but whose delegation is
+// more restricted than the challenged origin's, so the token is regenerated
+// with the delegation allowed for that host.
+//  {
+//     "requested_host": <Host of the origin that issued the challenge>,
+//     "principal_host": <Canonical host extracted from the target principal>
+//  }
+EVENT_TYPE(AUTH_TARGET_PRINCIPAL_DELEGATION_CLAMPED)
+
+// Logged when `HttpAuthHandlerNegotiate` rejects a DNS CNAME canonical host
+// against the challenged origin and `HttpAuthPreferences`, falling back to the
+// requested host for the SPN.
+//  {
+//     "requested_host": <Host of the origin that issued the challenge>,
+//     "canonical_host": <Canonical host returned by DNS CNAME resolution>,
+//     "reason": <Specific validation failure reason string>
+//  }
+EVENT_TYPE(AUTH_CNAME_REJECTED)
+
+// Logged when `HttpAuthHandlerNegotiate` clamps credential delegation because
+// the DNS CNAME canonical host's allowlist policy permits less delegation (or
+// none, when the canonical host is rejected).
+//  {
+//     "requested_host": <Host of the origin that issued the challenge>,
+//     "canonical_host": <Canonical host returned by DNS CNAME resolution>
+//  }
+EVENT_TYPE(AUTH_CNAME_DELEGATION_CLAMPED)
 
 // ------------------------------------------------------------------------
 // Global events
